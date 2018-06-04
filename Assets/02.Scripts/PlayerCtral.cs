@@ -24,6 +24,7 @@ public class PlayerCtral : MonoBehaviour
 
     //必须先分配变量，之后才能使用需要访问的组件
     private Transform tr;
+
     //移动速度变量
     public float moveSpeed = 10.0f;
 
