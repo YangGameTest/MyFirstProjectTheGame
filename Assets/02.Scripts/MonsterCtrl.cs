@@ -84,10 +84,8 @@ public class MonsterCtrl : MonoBehaviour
                 case MonsterState.idle:
                     //停止追击
                     nvAgent.Stop();
-                    //将Animator的IsTrace变量设置为false
+                    //将Aniamtor的IsTrace变量设置为false
                     animator.SetBool("IsTrace", false);
-                    //将Animator的IsAttack变量设置为false
-                    animator.SetBool("IsAttack", false);
                     break;
 
                     //追击状态
@@ -96,10 +94,9 @@ public class MonsterCtrl : MonoBehaviour
                     nvAgent.destination = playerTr.position;
                     //重新开始追击
                     nvAgent.Resume();
-
-                    //将Animator的IsAttack变量设置为false
-                    animator.SetBool("IsAttcak", false);
-                    //将Animator的IsTrace变量设置为true
+                    //将Aniamtor的IsAttack变量设置为false
+                    animator.SetBool("IsAttack", false);
+                    //将Aniamtor的IsTrace变量设置为True
                     animator.SetBool("IsTrace", true);
                     break;
 
@@ -107,14 +104,24 @@ public class MonsterCtrl : MonoBehaviour
                 case MonsterState.attcak:
                     //停止追击
                     nvAgent.Stop();
-                    //将Animator的IsTrace变量设置为false
-                    animator.SetBool("IsTrace", false);
                     //将IsAttack设置为true后，转换为attack状态
                     animator.SetBool("IsAttack", true);
                     break;
 
             }
             yield return null;
+        }
+    }
+
+    //检查怪兽是否与子弹发生碰撞
+    private void OnCollisionEnter(Collision coll)
+    {
+        if (coll.gameObject.tag=="BULLET")
+        {
+            //删除子弹对象Bullet
+            Destroy(coll.gameObject);
+            //触发IsHit Trigger，使怪兽从 Any State 转换为 gothit 状态
+            animator.SetTrigger("IsHit");
         }
     }
 
