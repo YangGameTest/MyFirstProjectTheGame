@@ -28,6 +28,9 @@ public class MonsterCtrl : MonoBehaviour
     //血迹贴图效果预设
     public GameObject bloodDecal;
 
+    //怪兽生命值变量
+    private int hp = 100;
+
     private void Start()
     {
         //获取怪兽的Transform组件
@@ -48,6 +51,22 @@ public class MonsterCtrl : MonoBehaviour
         //运行根据怪兽当前状态执行相应例程的协程函数
         StartCoroutine(this.MonsterAction());
 
+    }
+
+    /// <summary>
+    /// 脚本开始运行时注册事件
+    /// </summary>
+    private void OnEnable()
+    {
+        PlayerCtral.OnPlayerDie += this.OnPlayerDie;
+    }
+
+    /// <summary>
+    /// 脚本结束运行时解除事件
+    /// </summary>
+    private void OnDisable()
+    {
+        PlayerCtral.OnPlayerDie -= this.OnPlayerDie;
     }
 
     //定期检查怪兽当前状态并更新monsterState值
@@ -126,10 +145,37 @@ public class MonsterCtrl : MonoBehaviour
             //调用血迹效果函数
             CreateBloodEffect(coll.transform.position);
 
+            //获取子弹的伤害力并减少怪兽hp
+            hp -= coll.gameObject.GetComponent<BulletCtrl>().damage;
+            if (hp <= 0)
+            {
+                MonsterDie();
+            }
+
             //删除子弹对象Bullet
             Destroy(coll.gameObject);
             //触发IsHit Trigger，使怪兽从 Any State 转换为 gothit 状态
             animator.SetTrigger("IsHit");
+        }
+    }
+
+    //怪兽死亡处理例程
+    void MonsterDie()
+    {
+        //停止所有协程
+        StopAllCoroutines();
+
+        isDie = true;
+        monsterState = MonsterState.die;
+        nvAgent.Stop();
+        animator.SetTrigger("IsDie");
+
+        //禁用怪兽的Collider
+        gameObject.GetComponentInChildren<CapsuleCollider>().enabled = false;
+
+        foreach (Collider coll in gameObject.GetComponentsInChildren<SphereCollider>())
+        {
+            coll.enabled = false;
         }
     }
 
@@ -152,6 +198,20 @@ public class MonsterCtrl : MonoBehaviour
 
         //5秒后删除血迹效果预设
         Destroy(blood2, 5.0f);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        Debug.Log(other.gameObject.tag);
+    }
+
+    void OnPlayerDie()
+    {
+        //停止所有检测怪兽状态的协程函数
+        StopAllCoroutines();
+        //停止追击并执行动画
+        nvAgent.Stop();
+        animator.SetTrigger("IsPlayerDie");
     }
 
 

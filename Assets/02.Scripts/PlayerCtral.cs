@@ -29,13 +29,20 @@ public class PlayerCtral : MonoBehaviour
     public float moveSpeed = 10.0f;
 
     //旋转速度变量
-    public float rotSpeed = 100.0f;
+    public float rotSpeed = 200.0f;
 
     //要显示到检视视图的动画类变量
     public Anim anim;
 
     //要访问下列3D模型Animation组件对象的变量
     public Animation _animation;
+
+    //表示玩家生命值的变量
+    public int hp = 100;
+
+    //声明委托和事件
+    public delegate void PlayerDieHandler();
+    public static event PlayerDieHandler OnPlayerDie;
 
      void Start()
     {
@@ -69,8 +76,8 @@ public class PlayerCtral : MonoBehaviour
         h = Input.GetAxis("Horizontal");
         v = Input.GetAxis("Vertical");
 
-        Debug.Log("H=" + h.ToString());
-        Debug.Log("V=" + v.ToString());
+        //Debug.Log("H=" + h.ToString());
+        //Debug.Log("V=" + v.ToString());
 
         //计算前后左右移动方向向量
         Vector3 moveDir = (Vector3.forward * v) + (Vector3.right * h);
@@ -111,5 +118,45 @@ public class PlayerCtral : MonoBehaviour
         }
 
     }
+
+    //发生碰撞时调用，必须勾选碰撞器的IsTrigger选项
+    private void OnTriggerEnter(Collider coll)
+    {
+        //如果发生碰撞的Collider为怪兽的PUNCH，则减少玩家的HP
+        if (coll.gameObject.tag == "PUNCH")
+        {
+            hp -= 10;
+            Debug.Log("Player HP=" + hp.ToString());
+
+            //玩家生命值小于0是进行死亡处理
+            if (hp<=0)
+            {
+                PlayerDie();
+            }
+
+        }
+
+    }
+
+    /// <summary>
+    /// 玩家的死亡处理例程
+    /// </summary>
+    void PlayerDie()
+    {
+        Debug.Log("Player Die !!");
+        //注释或删除之前的例程
+        //        //获取所有拥有MONSTER Tag 的游戏对象
+        //        GameObject[] monsters = GameObject.FindGameObjectsWithTag("MONSTER");
+        //
+        //        //依次调用所有怪兽的OnPlayerDie函数
+        //        foreach (GameObject monster in monsters)
+        //        {
+        //            monster.SendMessage("OnPlayerDie", SendMessageOptions.DontRequireReceiver);
+        //        }
+
+        //触发事件
+        OnPlayerDie();
+    }
+
 
 }
