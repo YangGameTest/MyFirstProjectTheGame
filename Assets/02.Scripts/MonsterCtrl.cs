@@ -31,6 +31,9 @@ public class MonsterCtrl : MonoBehaviour
     //怪兽生命值变量
     private int hp = 100;
 
+    //声明GameUI游戏对象的GameUI脚本
+    private GameUI gameUI;
+
     private void Start()
     {
         //获取怪兽的Transform组件
@@ -50,6 +53,9 @@ public class MonsterCtrl : MonoBehaviour
 
         //运行根据怪兽当前状态执行相应例程的协程函数
         StartCoroutine(this.MonsterAction());
+
+        //获取GameUI游戏对象的GameUI脚本
+        gameUI = GameObject.Find("GameUI").GetComponent<GameUI>();
 
     }
 
@@ -177,6 +183,9 @@ public class MonsterCtrl : MonoBehaviour
         {
             coll.enabled = false;
         }
+
+        //调用GameUI脚本的处理分数累加与显示的函数
+        gameUI.DispScore(50);
     }
 
     void CreateBloodEffect(Vector3 pos)
